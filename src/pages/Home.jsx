@@ -1,0 +1,190 @@
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router";
+
+const features = [
+  {
+    icon: "🧑‍⚕️",
+    title: "Find Doctors",
+    text: "Browse available doctors and choose the one you need.",
+    role: "patient",
+    path: "/patient-dashboard",
+  },
+  {
+    icon: "📅",
+    title: "Book Appointments",
+    text: "Pick a date and time and book in a few clicks.",
+    role: "patient",
+    path: "/patient-dashboard",
+  },
+  {
+    icon: "✅",
+    title: "Manage Visits",
+    text: "Doctors confirm, cancel or complete their appointments.",
+    role: "doctor",
+    path: "/doctor-dashboard",
+  },
+  {
+    icon: "📊",
+    title: "Admin Overview",
+    text: "Admins track all doctors, patients and appointments.",
+    role: "admin",
+    path: "/admin-dashboard",
+  },
+];
+
+const Home = () => {
+  const navigate = useNavigate();
+  const [notice, setNotice] = useState(null);
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const dashboardLink =
+    user?.role === "patient"
+      ? "/patient-dashboard"
+      : user?.role === "doctor"
+      ? "/doctor-dashboard"
+      : "/admin-dashboard";
+
+  const handleFeatureClick = (feature) => {
+    setNotice(null);
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    if (user.role === feature.role) {
+      navigate(feature.path);
+    } else {
+      const article = user.role === "admin" ? "an" : "a";
+      setNotice({
+        message: `"${feature.title}" is for ${feature.role}s. You are logged in as ${article} ${user.role}.`,
+        requiredRole: feature.role,
+      });
+    }
+  };
+
+  const handleSwitchLogin = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
+  return (
+    <div>
+      <section className="bg-primary text-white py-5">
+        <div className="container py-4">
+          <div className="row align-items-center">
+            <div className="col-md-7 mb-4 mb-md-0">
+              <h1 className="display-5 fw-bold">
+                Skip the Queue. Book Your Doctor Online.
+              </h1>
+              <p className="lead mt-3">
+                Choose a doctor, pick a time and get your appointment confirmed
+                in a few clicks.
+              </p>
+
+              <ul className="list-unstyled mb-4">
+                <li className="mb-1">✓ Book appointments online</li>
+                <li className="mb-1">✓ Doctors confirm or cancel instantly</li>
+                <li className="mb-1">
+                  ✓ Separate dashboards for patients, doctors and admins
+                </li>
+              </ul>
+
+              {user ? (
+                <Link
+                  to={dashboardLink}
+                  className="btn btn-light btn-lg rounded-pill px-4"
+                >
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <div className="d-flex gap-3">
+                  <Link
+                    to="/register"
+                    className="btn btn-light btn-lg rounded-pill px-4"
+                  >
+                    Book an Appointment
+                  </Link>
+                  <Link
+                    to="/about"
+                    className="btn btn-outline-light btn-lg rounded-pill px-4"
+                  >
+                    Learn More
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <div className="col-md-5">
+              <div
+                className="card border-0 shadow text-dark"
+                style={{ borderRadius: "16px" }}
+              >
+                <div className="card-body p-4">
+                  <p className="text-muted small mb-3">UPCOMING APPOINTMENT</p>
+                  <div className="d-flex align-items-center mb-3">
+                    <div
+                      className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
+                      style={{ width: "48px", height: "48px", fontWeight: "bold" }}
+                    >
+                      DS
+                    </div>
+                    <div>
+                      <h6 className="mb-0">Dr. Sharma</h6>
+                      <small className="text-muted">General Physician</small>
+                    </div>
+                  </div>
+                  <p className="mb-1">
+                    <strong>Date:</strong> 2026-10-01
+                  </p>
+                  <p className="mb-3">
+                    <strong>Time:</strong> 10:00 AM
+                  </p>
+                  <span className="badge bg-success">confirmed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="container py-5">
+        <h2 className="text-center mb-4">What you can do</h2>
+
+        {notice && (
+          <div className="alert alert-warning text-center">
+            <p className="mb-2">{notice.message}</p>
+            <button
+              className="btn btn-primary btn-sm rounded-pill px-3"
+              onClick={handleSwitchLogin}
+            >
+              Login as {notice.requiredRole}
+            </button>
+          </div>
+        )}
+
+        <div className="row">
+          {features.map((f) => (
+            <div className="col-md-3 mb-4" key={f.title}>
+              <div
+                className="card shadow-sm border-0 h-100 text-center"
+                style={{ borderRadius: "12px", cursor: "pointer" }}
+                onClick={() => handleFeatureClick(f)}
+              >
+                <div className="card-body p-4">
+                  <div style={{ fontSize: "36px" }}>{f.icon}</div>
+                  <h5 className="mt-3">{f.title}</h5>
+                  <p className="text-muted small mb-2">{f.text}</p>
+                  <span className="text-primary small">Open →</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Home;
