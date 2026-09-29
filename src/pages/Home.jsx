@@ -1,30 +1,31 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { Stethoscope, CalendarCheck, ClipboardCheck, LayoutDashboard, ArrowRight } from "lucide-react";
 
 const features = [
   {
-    icon: "🧑‍⚕️",
+    Icon: Stethoscope,
     title: "Find Doctors",
     text: "Browse available doctors and choose the one you need.",
     role: "patient",
     path: "/patient-dashboard",
   },
   {
-    icon: "📅",
+    Icon: CalendarCheck,
     title: "Book Appointments",
     text: "Pick a date and time and book in a few clicks.",
     role: "patient",
     path: "/patient-dashboard",
   },
   {
-    icon: "✅",
+    Icon: ClipboardCheck,
     title: "Manage Visits",
     text: "Doctors confirm, cancel or complete their appointments.",
     role: "doctor",
     path: "/doctor-dashboard",
   },
   {
-    icon: "📊",
+    Icon: LayoutDashboard,
     title: "Admin Overview",
     text: "Admins track all doctors, patients and appointments.",
     role: "admin",
@@ -71,10 +72,16 @@ const Home = () => {
 
   return (
     <div>
-      <section className="bg-primary text-white py-5">
+      <section
+        className="text-white py-5"
+        style={{ background: "linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)" }}
+      >
         <div className="container py-4">
           <div className="row align-items-center">
             <div className="col-md-7 mb-4 mb-md-0">
+              <span className="badge bg-light text-primary rounded-pill px-3 py-2 mb-3">
+                Your Health, Our Priority
+              </span>
               <h1 className="display-5 fw-bold">
                 Skip the Queue. Book Your Doctor Online.
               </h1>
@@ -173,10 +180,17 @@ const Home = () => {
                 onClick={() => handleFeatureClick(f)}
               >
                 <div className="card-body p-4">
-                  <div style={{ fontSize: "36px" }}>{f.icon}</div>
-                  <h5 className="mt-3">{f.title}</h5>
+                  <div
+                    className="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center mx-auto mb-3"
+                    style={{ width: "56px", height: "56px" }}
+                  >
+                    <f.Icon size={26} />
+                  </div>
+                  <h5 className="mt-1">{f.title}</h5>
                   <p className="text-muted small mb-2">{f.text}</p>
-                  <span className="text-primary small">Open →</span>
+                  <span className="text-primary small d-inline-flex align-items-center gap-1">
+                    Open <ArrowRight size={14} />
+                  </span>
                 </div>
               </div>
             </div>

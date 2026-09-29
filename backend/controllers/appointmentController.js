@@ -140,3 +140,28 @@ export const updateAppointmentStatus = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+// Cancel own appointment (Patient only)
+export const cancelMyAppointment = async (req, res) => {
+  try {
+    const appointment = await Appointment.findOne({
+      _id: req.params.id,
+      patient: req.user.id,
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    if (appointment.status === "completed") {
+      return res.status(400).json({ message: "Completed appointments cannot be cancelled" });
+    }
+
+    appointment.status = "cancelled";
+    await appointment.save();
+
+    res.status(200).json({ message: "Appointment cancelled", appointment });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};

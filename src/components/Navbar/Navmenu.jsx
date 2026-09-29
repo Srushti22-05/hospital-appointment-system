@@ -21,26 +21,41 @@ const Navmenu = () => {
       : "/";
 
   return (
-    <nav className="d-flex justify-content-between align-items-center px-3 py-2">
-      <div className="d-flex gap-3">
-        <Link to="/home">Home</Link>
-        <Link to="/about">About</Link>
-        <Link to="/contact">Contact</Link>
+    <nav className="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom">
+      <div className="d-flex gap-4">
+        <Link to="/home" className="text-decoration-none text-dark">
+          Home
+        </Link>
+        <Link to="/about" className="text-decoration-none text-dark">
+          About
+        </Link>
+        <Link to="/contact" className="text-decoration-none text-dark">
+          Contact
+        </Link>
       </div>
 
       <div className="d-flex gap-3 align-items-center">
         {user ? (
           <>
-            <Link to={dashboardLink}>Dashboard</Link>
-            <span>Hi, {user.name}</span>
-            <button className="btn btn-outline-danger btn-sm" onClick={handleLogout}>
+            <Link to={dashboardLink} className="text-decoration-none text-dark">
+              Dashboard
+            </Link>
+            <span className="text-muted small">Hi, {user.name}</span>
+            <button
+              className="btn btn-outline-danger btn-sm rounded-pill px-3"
+              onClick={handleLogout}
+            >
               Logout
             </button>
           </>
         ) : (
           <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
+            <Link to="/login" className="btn btn-outline-primary btn-sm rounded-pill px-3">
+              Login
+            </Link>
+            <Link to="/register" className="btn btn-primary btn-sm rounded-pill px-3">
+              Register
+            </Link>
           </>
         )}
       </div>
