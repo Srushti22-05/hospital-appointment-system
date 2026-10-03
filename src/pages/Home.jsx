@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Stethoscope, CalendarCheck, ClipboardCheck, LayoutDashboard, ArrowRight } from "lucide-react";
+import SampleAppointmentCard from "../components/SampleAppointmentCard";
 
 const features = [
   {
@@ -124,33 +125,7 @@ const Home = () => {
             </div>
 
             <div className="col-md-5">
-              <div
-                className="card border-0 shadow text-dark"
-                style={{ borderRadius: "16px" }}
-              >
-                <div className="card-body p-4">
-                  <p className="text-muted small mb-3">UPCOMING APPOINTMENT</p>
-                  <div className="d-flex align-items-center mb-3">
-                    <div
-                      className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
-                      style={{ width: "48px", height: "48px", fontWeight: "bold" }}
-                    >
-                      DS
-                    </div>
-                    <div>
-                      <h6 className="mb-0">Dr. Sharma</h6>
-                      <small className="text-muted">General Physician</small>
-                    </div>
-                  </div>
-                  <p className="mb-1">
-                    <strong>Date:</strong> 2026-10-01
-                  </p>
-                  <p className="mb-3">
-                    <strong>Time:</strong> 10:00 AM
-                  </p>
-                  <span className="badge bg-success">confirmed</span>
-                </div>
-              </div>
+              <SampleAppointmentCard />
             </div>
           </div>
         </div>

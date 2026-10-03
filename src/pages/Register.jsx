@@ -25,6 +25,8 @@ const Register = () => {
     role: "patient",
     specialization: "",
     fees: "",
+    qualification: "",
+    licenseNumber: "",
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -41,9 +43,18 @@ const Register = () => {
       if (payload.role !== "doctor") {
         delete payload.specialization;
         delete payload.fees;
+        delete payload.qualification;
+        delete payload.licenseNumber;
       }
       await axiosInstance.post("/auth/register", payload);
-      alert("Registration successful! Please login.");
+
+      if (payload.role === "doctor") {
+        alert(
+          "Registration submitted! Your request has been sent to the admin for approval. You can login once it is approved."
+        );
+      } else {
+        alert("Registration successful! Please login.");
+      }
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
@@ -139,6 +150,30 @@ const Register = () => {
                 </select>
               </div>
               <div className="mb-3">
+                <label className="form-label">Qualification</label>
+                <input
+                  type="text"
+                  name="qualification"
+                  className="form-control"
+                  placeholder="e.g. MBBS, MD Dermatology"
+                  value={formData.qualification}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">
+                  Medical Registration No. <span className="text-muted small">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  name="licenseNumber"
+                  className="form-control"
+                  value={formData.licenseNumber}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="mb-3">
                 <label className="form-label">Consultation Fees (₹)</label>
                 <input
                   type="number"
@@ -150,11 +185,14 @@ const Register = () => {
                   required
                 />
               </div>
+              <div className="alert alert-info small py-2">
+                Doctor accounts need admin approval before you can login and appear to patients.
+              </div>
             </>
           )}
 
           <button type="submit" className="btn btn-success w-100 rounded-pill py-2 mt-2">
-            Register
+            {formData.role === "doctor" ? "Submit for Approval" : "Register"}
           </button>
         </form>
 

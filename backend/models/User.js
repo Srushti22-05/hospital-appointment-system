@@ -29,6 +29,22 @@ const userSchema = new mongoose.Schema(
     fees: {
       type: Number,
     },
+
+    // Doctor approval (admin approve/reject karta hai)
+    approvalStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "approved",
+    },
+    qualification: {
+      type: String,
+    },
+    licenseNumber: {
+      type: String,
+    },
+    rejectionReason: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

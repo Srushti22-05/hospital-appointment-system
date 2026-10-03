@@ -6,6 +6,7 @@ import {
   getAllAppointments,
   updateAppointmentStatus,
   cancelMyAppointment,
+  getBookedSlots,
 } from "../controllers/appointmentController.js";
 import { protect, authorizeRoles } from "../middleware/authMiddleware.js";
 
@@ -17,6 +18,7 @@ router.get("/doctor-appointments", protect, authorizeRoles("doctor"), getDoctorA
 router.get("/all", protect, authorizeRoles("admin"), getAllAppointments);
 router.patch("/:id/status", protect, authorizeRoles("doctor"), updateAppointmentStatus);
 router.patch("/:id/cancel", protect, authorizeRoles("patient"), cancelMyAppointment);
+router.get("/booked-slots", protect, getBookedSlots);
 
 
 export default router;

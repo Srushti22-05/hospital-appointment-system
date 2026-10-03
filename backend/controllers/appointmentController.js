@@ -41,9 +41,14 @@ export const bookAppointment = async (req, res) => {
         .json({ message: "Please choose today or a future date" });
     }
 
-    const doctor = await User.findOne({ _id: doctorId, role: "doctor" });
+    // Sirf admin-approved doctor ke saath booking ho sakti hai
+    const doctor = await User.findOne({
+      _id: doctorId,
+      role: "doctor",
+      approvalStatus: "approved",
+    });
     if (!doctor) {
-      return res.status(404).json({ message: "Doctor not found" });
+      return res.status(404).json({ message: "Doctor not found or not available" });
     }
 
     const alreadyBooked = await Appointment.findOne({
@@ -161,6 +166,32 @@ export const cancelMyAppointment = async (req, res) => {
     await appointment.save();
 
     res.status(200).json({ message: "Appointment cancelled", appointment });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// GET /api/appointments/booked-slots?doctorId=...&date=2026-10-03
+// Same query as the 409 check in bookAppointment: date is a string, field is "time"
+export const getBookedSlots = async (req, res) => {
+  try {
+    const { doctorId, date } = req.query;
+
+    if (!doctorId || !date) {
+      return res.status(400).json({ message: "doctorId and date are required" });
+    }
+
+    if (!mongoose.isValidObjectId(doctorId)) {
+      return res.status(400).json({ message: "Invalid doctor" });
+    }
+
+    const booked = await Appointment.find({
+      doctor: doctorId,
+      date,
+      status: { $ne: "cancelled" }, // cancelled slot dobara free ho jaye
+    }).select("time");
+
+    res.status(200).json(booked.map((a) => a.time));
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }

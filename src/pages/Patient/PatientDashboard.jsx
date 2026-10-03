@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
-import { Stethoscope, IndianRupee } from "lucide-react";
+import { Stethoscope, IndianRupee, GraduationCap } from "lucide-react";
+import ChatbotWidget from "../../components/ChatbotWidget";
 
 const SLOTS = [];
 for (let h = 9; h < 17; h++) {
@@ -28,6 +29,7 @@ const PatientDashboard = () => {
   const [error, setError] = useState("");
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [bookingData, setBookingData] = useState({ date: "", time: "" });
+  const [bookedSlots, setBookedSlots] = useState([]);
   const [message, setMessage] = useState({ text: "", type: "" });
 
   const token = localStorage.getItem("token");
@@ -52,10 +54,37 @@ const PatientDashboard = () => {
     fetchAll();
   }, []);
 
+  // Selected doctor + date ke liye already booked slots laao
+  const fetchBookedSlots = async () => {
+    if (!selectedDoctor || !bookingData.date) {
+      setBookedSlots([]);
+      return;
+    }
+    try {
+      const res = await axiosInstance.get("/appointments/booked-slots", {
+        headers,
+        params: { doctorId: selectedDoctor, date: bookingData.date },
+      });
+      setBookedSlots(Array.isArray(res.data) ? res.data : []);
+    } catch {
+      setBookedSlots([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookedSlots();
+  }, [selectedDoctor, bookingData.date]);
+
   const handleBookClick = (doctorId) => {
     setSelectedDoctor(doctorId);
     setBookingData({ date: "", time: "" });
+    setBookedSlots([]);
     setMessage({ text: "", type: "" });
+  };
+
+  const handleChatbotSelect = (doctorId) => {
+    setActiveTab("doctors");
+    handleBookClick(doctorId);
   };
 
   const handleBookingSubmit = async (e) => {
@@ -69,6 +98,7 @@ const PatientDashboard = () => {
       setMessage({ text: "Appointment booked successfully!", type: "success" });
       setSelectedDoctor(null);
       setBookingData({ date: "", time: "" });
+      setBookedSlots([]);
       setActiveTab("appointments");
       fetchAll();
     } catch (err) {
@@ -76,6 +106,14 @@ const PatientDashboard = () => {
         text: err.response?.data?.message || "Booking failed",
         type: "danger",
       });
+      // 409 matlab slot already booked: use turant "(Booked)" mark karo
+      if (err.response?.status === 409) {
+        const takenSlot = bookingData.time;
+        setBookedSlots((prev) =>
+          prev.includes(takenSlot) ? prev : [...prev, takenSlot]
+        );
+        setBookingData((prev) => ({ ...prev, time: "" }));
+      }
     }
   };
 
@@ -176,6 +214,11 @@ const PatientDashboard = () => {
                       <Stethoscope size={14} /> {doctor.specialization}
                     </p>
                   )}
+                  {doctor.qualification && (
+                    <p className="text-muted small mb-1 d-flex align-items-center justify-content-center gap-1">
+                      <GraduationCap size={14} /> {doctor.qualification}
+                    </p>
+                  )}
                   {doctor.fees && (
                     <p className="text-muted small mb-3 d-flex align-items-center justify-content-center gap-1">
                       <IndianRupee size={14} /> {doctor.fees}
@@ -189,7 +232,7 @@ const PatientDashboard = () => {
                         className="form-control mb-2"
                         min={new Date().toLocaleDateString("en-CA")}
                         value={bookingData.date}
-                        onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
+                        onChange={(e) => setBookingData({ date: e.target.value, time: "" })}
                         required
                       />
                       <select
@@ -199,9 +242,15 @@ const PatientDashboard = () => {
                         required
                       >
                         <option value="">Select time slot</option>
-                        {SLOTS.map((slot) => (
-                          <option key={slot} value={slot}>{slot}</option>
-                        ))}
+                        {SLOTS.map((slot) => {
+                          const isBooked = bookedSlots.includes(slot);
+                          return (
+                            <option key={slot} value={slot} disabled={isBooked}>
+                              {slot}
+                              {isBooked ? " (Booked)" : ""}
+                            </option>
+                          );
+                        })}
                       </select>
                       <button type="submit" className="btn btn-success w-100 rounded-pill mb-2">
                         Confirm Booking
@@ -209,7 +258,10 @@ const PatientDashboard = () => {
                       <button
                         type="button"
                         className="btn btn-outline-secondary w-100 rounded-pill"
-                        onClick={() => setSelectedDoctor(null)}
+                        onClick={() => {
+                          setSelectedDoctor(null);
+                          setBookedSlots([]);
+                        }}
                       >
                         Cancel
                       </button>
@@ -228,6 +280,8 @@ const PatientDashboard = () => {
           ))}
         </div>
       )}
+
+      {!loading && <ChatbotWidget doctors={doctors} onSelectDoctor={handleChatbotSelect} />}
     </div>
   );
 };
